@@ -1,0 +1,35 @@
+# Variables d'environnement (ne JAMAIS push de secrets sur GitHub !)
+.env
+.env.local
+.env.production
+.env.development
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# IDE / Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node (pour plus tard)
+node_modules/
+dist/
+build/
+.next/
+
+# Cache divers
+.cache/
+*.cache
