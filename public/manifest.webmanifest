@@ -1,0 +1,21 @@
+{
+  "name": "GestChantier",
+  "short_name": "GestChantier",
+  "description": "Gestion de chantier nouvelle generation pour artisans BTP",
+  "start_url": "/app.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#04060d",
+  "theme_color": "#0a0e1a",
+  "lang": "fr",
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

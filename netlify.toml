@@ -1,0 +1,33 @@
+# Netlify config — deploy public/ as a static site
+# Le repo GitHub est connecte a Netlify : a chaque push sur main,
+# Netlify rebuild et redeploie automatiquement.
+
+[build]
+  publish = "public"
+  command = "echo 'Static site, no build step'"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Service-Worker-Allowed = "/"
+
+[[headers]]
+  for = "/manifest.webmanifest"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Cache-Control = "public, max-age=3600"
+
+# SPA fallback : toutes les routes inconnues servent app.html
+[[redirects]]
+  from = "/*"
+  to = "/app.html"
+  status = 200
