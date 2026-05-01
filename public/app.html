@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0e1a">
+<title>GestChantier — Gestion de chantier nouvelle generation</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23f59e0b'/%3E%3Cpath d='M22 70 L50 30 L78 70 Z' fill='%230a0e1a'/%3E%3Cpath d='M30 70 L50 42 L70 70 Z' fill='%23fbbf24'/%3E%3C/svg%3E">
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          ink: { 950:'#04060d', 900:'#0a0e1a', 800:'#111827', 700:'#1f2937', 600:'#374151' },
+          brand: { 400:'#fbbf24', 500:'#f59e0b', 600:'#d97706', 700:'#b45309' },
+        },
+        boxShadow: {
+          glow: '0 0 0 1px rgba(245,158,11,0.25), 0 12px 40px -12px rgba(245,158,11,0.55)',
+        },
+      }
+    }
+  }
+</script>
+<style>
+  html, body { background:#04060d; color:#e5e7eb; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif; }
+  .glass { background:rgba(17,24,39,0.7); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border:1px solid rgba(255,255,255,0.06); }
+  .grad-text { background:linear-gradient(90deg,#fbbf24,#f59e0b,#fb7185); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .grad-bg   { background:radial-gradient(ellipse at 20% -10%, rgba(245,158,11,0.18), transparent 60%), radial-gradient(ellipse at 100% 100%, rgba(244,114,182,0.10), transparent 50%), #04060d; }
+  .anim-in   { animation: fadeUp .35s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: none; } }
+  .spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,0.2); border-top-color:#fbbf24; border-radius:9999px; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: #374151; }
+  input, select, textarea { color-scheme: dark; }
+  .badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:9999px; font-size:11px; font-weight:600; }
+</style>
+</head>
+<body class="grad-bg min-h-screen">
+
+<!-- ROOT -->
+<div id="root" class="min-h-screen"></div>
+
+<!-- TOAST -->
+<div id="toast" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
+<!-- TEMPLATES -->
+
+<template id="tpl-loading">
+  <div class="min-h-screen flex flex-col items-center justify-center gap-4">
+    <div class="spinner" style="width:36px;height:36px;border-width:3px"></div>
+    <p class="text-slate-400 text-sm">Chargement...</p>
+  </div>
+</template>
+
+<template id="tpl-setup">
+  <div class="min-h-screen flex items-center justify-center p-6">
+    <div class="glass anim-in rounded-2xl p-8 w-full max-w-md shadow-glow">
+      <div class="flex items-center gap-3 mb-1">
+        <div class="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center text-ink-950 font-black text-lg">GC</div>
+        <h1 class="text-xl font-bold">Configuration</h1>
+      </div>
+      <p class="text-slate-400 text-sm mb-6">Renseigne les identifiants de ton projet Supabase. Ils sont stockes localement (jamais envoyes ailleurs).</p>
+      <form data-form="setup" class="space-y-3">
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Supabase URL</label>
+          <input name="url" type="url" required placeholder="https://xxxxx.supabase.co"
+            class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Anon key (publique)</label>
+          <input name="key" type="text" required placeholder="eyJhbGciOi..."
+            class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 font-mono text-xs focus:outline-none focus:border-brand-500">
+          <p class="text-[11px] text-slate-500 mt-1">Cette cle est <b>publique</b> par design Supabase. La securite vient des regles RLS cote DB.</p>
+        </div>
+        <button class="w-full bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold py-2.5 rounded-lg transition">Continuer</button>
+      </form>
+      <p class="text-[11px] text-slate-500 mt-4">Tu trouveras ces cles dans Supabase &raquo; Project Settings &raquo; API.</p>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-auth">
+  <div class="min-h-screen flex items-center justify-center p-6">
+    <div class="anim-in w-full max-w-md">
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center gap-3 mb-3">
+          <div class="w-12 h-12 rounded-2xl bg-brand-500 flex items-center justify-center text-ink-950 font-black text-xl shadow-glow">GC</div>
+        </div>
+        <h1 class="text-3xl font-bold grad-text">GestChantier</h1>
+        <p class="text-slate-400 text-sm mt-1">La gestion de chantier nouvelle generation</p>
+      </div>
+
+      <div class="glass rounded-2xl p-6">
+        <div class="grid grid-cols-2 gap-2 p-1 bg-ink-900 rounded-xl mb-5">
+          <button data-tab="login"  class="tab-btn py-2 rounded-lg text-sm font-semibold transition">Connexion</button>
+          <button data-tab="signup" class="tab-btn py-2 rounded-lg text-sm font-semibold transition">Inscription</button>
+        </div>
+
+        <form data-form="login" class="space-y-3">
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Email</label>
+            <input name="email" type="email" required class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Mot de passe</label>
+            <input name="password" type="password" required class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+          </div>
+          <button class="w-full bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold py-2.5 rounded-lg transition">Se connecter</button>
+        </form>
+
+        <form data-form="signup" class="space-y-3 hidden">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Prenom</label>
+              <input name="first_name" type="text" required class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Nom</label>
+              <input name="last_name" type="text" required class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Email</label>
+            <input name="email" type="email" required class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Mot de passe (8 caracteres min.)</label>
+            <input name="password" type="password" required minlength="8" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+          </div>
+          <button class="w-full bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold py-2.5 rounded-lg transition">Creer mon compte</button>
+          <p class="text-[11px] text-slate-500 text-center">Tu pourras creer ton entreprise apres validation de l'email.</p>
+        </form>
+      </div>
+
+      <button data-action="reset-config" class="block mx-auto mt-4 text-xs text-slate-500 hover:text-slate-300">Changer le projet Supabase</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-onboarding">
+  <div class="min-h-screen flex items-center justify-center p-6">
+    <div class="glass anim-in rounded-2xl p-8 w-full max-w-md shadow-glow">
+      <h1 class="text-2xl font-bold mb-1">Bienvenue !</h1>
+      <p class="text-slate-400 text-sm mb-6">Creons ton entreprise. Une fois validee par notre equipe, tu pourras inviter ton equipe.</p>
+      <form data-form="create-company" class="space-y-3">
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Nom de l'entreprise</label>
+          <input name="name" type="text" required minlength="2" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+        </div>
+        <div>
+          <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Corps de metier</label>
+          <select name="trade" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2.5 focus:outline-none focus:border-brand-500">
+            <option value="">-- Selectionner --</option>
+            <option>Plaquiste</option>
+            <option>Plombier</option>
+            <option>Electricien</option>
+            <option>Macon</option>
+            <option>Menuisier</option>
+            <option>Couvreur</option>
+            <option>Carreleur</option>
+            <option>Peintre</option>
+            <option>Chauffagiste</option>
+            <option>Autre</option>
+          </select>
+        </div>
+        <button class="w-full bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold py-2.5 rounded-lg transition">Creer l'entreprise</button>
+      </form>
+      <button data-action="logout" class="block mx-auto mt-4 text-xs text-slate-500 hover:text-slate-300">Deconnexion</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-pending">
+  <div class="min-h-screen flex items-center justify-center p-6">
+    <div class="glass anim-in rounded-2xl p-8 w-full max-w-md text-center">
+      <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-brand-500/20 flex items-center justify-center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      </div>
+      <h1 class="text-xl font-bold mb-2">En attente de validation</h1>
+      <p class="text-slate-400 text-sm mb-6">Ton entreprise <b class="text-slate-200" data-bind="company-name"></b> a bien ete creee. Notre equipe la validera tres vite.</p>
+      <button data-action="refresh" class="bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold px-5 py-2 rounded-lg transition">Rafraichir</button>
+      <button data-action="logout" class="block mx-auto mt-4 text-xs text-slate-500 hover:text-slate-300">Deconnexion</button>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-app">
+  <div class="min-h-screen flex">
+
+    <!-- SIDEBAR -->
+    <aside class="hidden md:flex flex-col w-60 border-r border-ink-700/50 bg-ink-900/60 backdrop-blur-xl">
+      <div class="p-5 flex items-center gap-3 border-b border-ink-700/50">
+        <div class="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center text-ink-950 font-black">GC</div>
+        <div>
+          <div class="font-bold text-sm leading-tight">GestChantier</div>
+          <div class="text-[10px] text-slate-500 uppercase tracking-wider">v1.0 alpha</div>
+        </div>
+      </div>
+      <nav class="p-3 space-y-1 flex-1" data-nav>
+        <button data-page="dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          Tableau de bord
+        </button>
+        <button data-page="projects" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 9h2M13 9h2M9 13h2M13 13h2M9 17h2M13 17h2"/></svg>
+          Chantiers
+        </button>
+        <button data-page="companies" data-role="super_admin" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V7l8-4v18M21 21V11l-10-4M9 9h0M9 13h0M9 17h0"/></svg>
+          Entreprises
+          <span class="ml-auto text-[10px] bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">ADMIN</span>
+        </button>
+      </nav>
+      <div class="p-3 border-t border-ink-700/50">
+        <div class="flex items-center gap-3 p-2 rounded-lg">
+          <div class="w-9 h-9 rounded-full bg-gradient-to-br from-brand-500 to-pink-500 flex items-center justify-center font-bold text-ink-950" data-bind="avatar"></div>
+          <div class="flex-1 min-w-0">
+            <div class="text-sm font-medium truncate" data-bind="full-name"></div>
+            <div class="text-[11px] text-slate-500" data-bind="role-label"></div>
+          </div>
+          <button data-action="logout" title="Deconnexion" class="text-slate-500 hover:text-slate-200 p-1.5 rounded">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="flex-1 min-w-0">
+      <header class="border-b border-ink-700/50 px-5 md:px-8 py-4 flex items-center justify-between sticky top-0 bg-ink-900/70 backdrop-blur-xl z-20">
+        <div>
+          <div class="text-xs text-slate-500 uppercase tracking-wider" data-bind="company-name"></div>
+          <h1 class="text-lg md:text-xl font-bold" data-bind="page-title">Tableau de bord</h1>
+        </div>
+        <div class="flex items-center gap-2">
+          <button data-action="refresh" class="p-2 hover:bg-ink-700/50 rounded-lg" title="Rafraichir">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Mobile nav -->
+      <div class="md:hidden flex border-b border-ink-700/50 bg-ink-900/60 overflow-x-auto" data-nav-mobile>
+        <button data-page="dashboard" class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Dashboard</button>
+        <button data-page="projects"  class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Chantiers</button>
+        <button data-page="companies" data-role="super_admin" class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Entreprises</button>
+      </div>
+
+      <div id="page" class="p-5 md:p-8"></div>
+    </main>
+  </div>
+</template>
+
+<template id="tpl-page-dashboard">
+  <div class="anim-in space-y-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" data-bind="kpis"></div>
+    <div class="glass rounded-2xl p-6">
+      <h2 class="text-lg font-semibold mb-4">Activite recente</h2>
+      <div data-bind="recent" class="space-y-2"></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-page-projects">
+  <div class="anim-in space-y-5">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-3">
+        <input data-bind="search" placeholder="Rechercher un chantier..." class="bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 text-sm w-64 max-w-full focus:outline-none focus:border-brand-500">
+        <select data-bind="filter-status" class="bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500">
+          <option value="">Tous statuts</option>
+          <option value="devis">Devis</option>
+          <option value="planifie">Planifie</option>
+          <option value="en_cours">En cours</option>
+          <option value="termine">Termine</option>
+          <option value="archive">Archive</option>
+        </select>
+      </div>
+      <button data-action="new-project" data-role="admin,chef" class="bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        Nouveau chantier
+      </button>
+    </div>
+    <div data-bind="list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+    <div data-bind="empty" class="hidden text-center py-16 text-slate-500">
+      <p>Aucun chantier pour l'instant.</p>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-page-companies">
+  <div class="anim-in space-y-5">
+    <div class="glass rounded-2xl p-6">
+      <h2 class="text-lg font-semibold mb-1">Entreprises en attente</h2>
+      <p class="text-sm text-slate-400 mb-5">Approuve ou rejette les inscriptions.</p>
+      <div data-bind="pending" class="space-y-2"></div>
+    </div>
+    <div class="glass rounded-2xl p-6">
+      <h2 class="text-lg font-semibold mb-5">Toutes les entreprises</h2>
+      <div data-bind="all" class="space-y-2"></div>
+    </div>
+  </div>
+</template>
+
+<template id="tpl-modal-project">
+  <div class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 anim-in" data-modal>
+    <div class="glass rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-xl font-bold" data-bind="title">Nouveau chantier</h2>
+        <button data-action="close" class="text-slate-400 hover:text-white p-1">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form data-form="project" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="md:col-span-2">
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Nom du chantier *</label>
+            <input name="name" required class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Reference</label>
+            <input name="reference" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Statut</label>
+            <select name="status" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+              <option value="devis">Devis</option>
+              <option value="planifie">Planifie</option>
+              <option value="en_cours">En cours</option>
+              <option value="termine">Termine</option>
+              <option value="archive">Archive</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Priorite</label>
+            <select name="priority" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+              <option value="basse">Basse</option>
+              <option value="normale" selected>Normale</option>
+              <option value="haute">Haute</option>
+              <option value="urgente">Urgente</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Corps de metier</label>
+            <input name="trade" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div class="md:col-span-2 mt-2 pt-4 border-t border-ink-700/50">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 mb-3">Client</h3>
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Nom du client</label>
+            <input name="client_name" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Telephone</label>
+            <input name="client_phone" type="tel" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Email client</label>
+            <input name="client_email" type="email" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Adresse</label>
+            <input name="address" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Code postal</label>
+            <input name="zip_code" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Ville</label>
+            <input name="city" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div class="md:col-span-2 mt-2 pt-4 border-t border-ink-700/50">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 mb-3">Planning</h3>
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Date debut</label>
+            <input name="start_date" type="date" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div>
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Date fin</label>
+            <input name="end_date" type="date" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Heures estimees</label>
+            <input name="estimated_hours" type="number" step="0.5" min="0" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+          </div>
+
+          <div data-finance class="md:col-span-2 mt-2 pt-4 border-t border-ink-700/50">
+            <h3 class="text-xs uppercase tracking-wider text-slate-500 mb-3 flex items-center gap-2">
+              Financier
+              <span class="badge bg-slate-700 text-slate-300">CONFIDENTIEL</span>
+            </h3>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Budget HT (EUR)</label>
+                <input name="budget_ht" type="number" step="0.01" min="0" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+              </div>
+              <div>
+                <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Budget TTC (EUR)</label>
+                <input name="budget_ttc" type="number" step="0.01" min="0" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500">
+              </div>
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">Notes</label>
+            <textarea name="notes" rows="3" class="w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500"></textarea>
+          </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" data-action="close" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white">Annuler</button>
+          <button type="submit" class="bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold px-5 py-2 rounded-lg text-sm transition">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
+
+// ============================================================
+// CONFIG
+// ============================================================
+const CFG_KEY = 'gc.config.v1';
+const TAB_KEY = 'gc.tab';
+const cfg = JSON.parse(localStorage.getItem(CFG_KEY) || 'null');
+
+let supa = null;
+if (cfg && cfg.url && cfg.key) {
+  try { supa = createClient(cfg.url, cfg.key); }
+  catch(e) { console.error('Init Supabase failed', e); }
+}
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  user: null,
+  profile: null,
+  company: null,
+  page: 'dashboard',
+  projects: [],
+  search: '',
+  filterStatus: '',
+  editing: null,
+};
+
+// ============================================================
+// DOM HELPERS
+// ============================================================
+const $  = (s, p=document) => p.querySelector(s);
+const $$ = (s, p=document) => Array.from(p.querySelectorAll(s));
+const root  = $('#root');
+const toast = $('#toast');
+
+function tpl(id) {
+  const t = document.getElementById(id);
+  if (!t) throw new Error('Template missing: ' + id);
+  return t.content.cloneNode(true);
+}
+
+function render(node) {
+  root.innerHTML = '';
+  root.appendChild(node);
+}
+
+function bind(scope, key, val) {
+  $$(`[data-bind="${key}"]`, scope).forEach(el => { el.textContent = val ?? ''; });
+}
+
+function notify(msg, type='info') {
+  const colors = {
+    info:    'bg-slate-800 border-slate-600',
+    success: 'bg-emerald-900/80 border-emerald-600',
+    error:   'bg-rose-900/80 border-rose-600',
+  };
+  const div = document.createElement('div');
+  div.className = `${colors[type]} border text-sm px-4 py-2.5 rounded-lg shadow-lg backdrop-blur-md anim-in max-w-sm`;
+  div.textContent = msg;
+  toast.appendChild(div);
+  setTimeout(() => { div.style.transition = 'opacity .4s'; div.style.opacity = '0'; }, 3500);
+  setTimeout(() => div.remove(), 4000);
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function fmtMoney(n) {
+  if (n == null || isNaN(n)) return '-';
+  return Number(n).toLocaleString('fr-FR', { style:'currency', currency:'EUR', maximumFractionDigits: 0 });
+}
+function fmtDate(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'numeric' });
+}
+function initials(first, last) {
+  return ((first||'?')[0] + (last||'')[0]).toUpperCase();
+}
+
+// ============================================================
+// SETUP SCREEN
+// ============================================================
+function showSetup() {
+  const node = tpl('tpl-setup');
+  $('form[data-form="setup"]', node).addEventListener('submit', e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const url = f.get('url').trim();
+    const key = f.get('key').trim();
+    if (!url.startsWith('https://') || !url.includes('.supabase.co')) {
+      notify("URL Supabase invalide", 'error'); return;
+    }
+    localStorage.setItem(CFG_KEY, JSON.stringify({ url, key }));
+    location.reload();
+  });
+  render(node);
+}
+
+// ============================================================
+// AUTH SCREEN
+// ============================================================
+function showAuth() {
+  const node = tpl('tpl-auth');
+  const tabs = $$('.tab-btn', node);
+  const formLogin  = $('form[data-form="login"]',  node);
+  const formSignup = $('form[data-form="signup"]', node);
+
+  function setTab(name) {
+    localStorage.setItem(TAB_KEY, name);
+    tabs.forEach(b => {
+      const active = b.dataset.tab === name;
+      b.classList.toggle('bg-brand-500', active);
+      b.classList.toggle('text-ink-950', active);
+      b.classList.toggle('text-slate-400', !active);
+    });
+    formLogin.classList.toggle('hidden',  name !== 'login');
+    formSignup.classList.toggle('hidden', name !== 'signup');
+  }
+  tabs.forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+  setTab(localStorage.getItem(TAB_KEY) || 'login');
+
+  formLogin.addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const btn = e.target.querySelector('button[type=submit]') || e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = '...';
+    const { error } = await supa.auth.signInWithPassword({
+      email: f.get('email').trim(),
+      password: f.get('password'),
+    });
+    btn.disabled = false; btn.textContent = 'Se connecter';
+    if (error) { notify(error.message, 'error'); return; }
+    boot();
+  });
+
+  formSignup.addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const btn = e.target.querySelector('button[type=submit]') || e.target.querySelector('button');
+    btn.disabled = true; btn.textContent = '...';
+    const email = f.get('email').trim();
+    const password = f.get('password');
+    const { data, error } = await supa.auth.signUp({
+      email, password,
+      options: { data: {
+        first_name: f.get('first_name').trim(),
+        last_name:  f.get('last_name').trim(),
+      }}
+    });
+    btn.disabled = false; btn.textContent = 'Creer mon compte';
+    if (error) { notify(error.message, 'error'); return; }
+    if (!data.session) {
+      notify('Verifie ton email pour activer ton compte, puis connecte-toi.', 'success');
+      setTab('login');
+    } else {
+      // Mettre a jour le profile avec first_name / last_name
+      await supa.from('profiles').update({
+        first_name: f.get('first_name').trim(),
+        last_name:  f.get('last_name').trim(),
+      }).eq('id', data.user.id);
+      boot();
+    }
+  });
+
+  $('button[data-action="reset-config"]', node).addEventListener('click', () => {
+    if (confirm('Effacer la configuration Supabase locale ?')) {
+      localStorage.removeItem(CFG_KEY);
+      location.reload();
+    }
+  });
+
+  render(node);
+}
+
+// ============================================================
+// ONBOARDING
+// ============================================================
+function showOnboarding() {
+  const node = tpl('tpl-onboarding');
+  $('form[data-form="create-company"]', node).addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = '...';
+    const { error } = await supa.rpc('create_company_and_become_admin', {
+      p_company_name: f.get('name').trim(),
+      p_trade: f.get('trade'),
+    });
+    btn.disabled = false; btn.textContent = "Creer l'entreprise";
+    if (error) { notify(error.message, 'error'); return; }
+    notify('Entreprise creee !', 'success');
+    boot();
+  });
+  $('button[data-action="logout"]', node).addEventListener('click', logout);
+  render(node);
+}
+
+// ============================================================
+// PENDING
+// ============================================================
+function showPending() {
+  const node = tpl('tpl-pending');
+  bind(node, 'company-name', state.company?.name || '');
+  $('button[data-action="refresh"]', node).addEventListener('click', boot);
+  $('button[data-action="logout"]',  node).addEventListener('click', logout);
+  render(node);
+}
+
+// ============================================================
+// MAIN APP
+// ============================================================
+function showApp() {
+  const node = tpl('tpl-app');
+  bind(node, 'company-name', state.company?.name || (state.profile.role === 'super_admin' ? 'Super-admin' : ''));
+  bind(node, 'full-name',    `${state.profile.first_name || ''} ${state.profile.last_name || ''}`.trim() || state.profile.email);
+  bind(node, 'role-label',   ROLE_LABELS[state.profile.role] || '-');
+  bind(node, 'avatar',       initials(state.profile.first_name, state.profile.last_name));
+
+  // Filter nav by role
+  $$('[data-role]', node).forEach(el => {
+    const allowed = el.dataset.role.split(',').map(s => s.trim());
+    if (!allowed.includes(state.profile.role)) el.remove();
+  });
+
+  // Wire nav
+  $$('[data-page]', node).forEach(b => {
+    b.addEventListener('click', () => navigate(b.dataset.page));
+  });
+
+  // Logout / refresh
+  $$('[data-action="logout"]',  node).forEach(b => b.addEventListener('click', logout));
+  $$('[data-action="refresh"]', node).forEach(b => b.addEventListener('click', () => renderPage(true)));
+
+  render(node);
+  navigate(state.page);
+}
+
+const ROLE_LABELS = {
+  super_admin: 'Super-admin',
+  admin:       "Patron d'entreprise",
+  chef:        'Chef de chantier',
+  ouvrier:     'Compagnon',
+};
+
+const STATUS_LABELS = {
+  devis:    'Devis',
+  planifie: 'Planifie',
+  en_cours: 'En cours',
+  termine:  'Termine',
+  archive:  'Archive',
+};
+const STATUS_COLORS = {
+  devis:    'bg-slate-700 text-slate-200',
+  planifie: 'bg-sky-900/60 text-sky-300',
+  en_cours: 'bg-amber-900/60 text-amber-300',
+  termine:  'bg-emerald-900/60 text-emerald-300',
+  archive:  'bg-slate-800 text-slate-500',
+};
+const PRIO_COLORS = {
+  basse:    'bg-slate-800 text-slate-400',
+  normale:  'bg-slate-700 text-slate-300',
+  haute:    'bg-orange-900/60 text-orange-300',
+  urgente:  'bg-rose-900/70 text-rose-300',
+};
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function navigate(page) {
+  state.page = page;
+  $$('.nav-btn').forEach(b => {
+    const active = b.dataset.page === page;
+    b.classList.toggle('bg-brand-500/15', active);
+    b.classList.toggle('text-brand-400',  active);
+    b.classList.toggle('text-slate-400',  !active);
+    b.classList.toggle('hover:bg-ink-700/50', !active);
+  });
+  bind(document, 'page-title', { dashboard:'Tableau de bord', projects:'Chantiers', companies:'Entreprises' }[page] || '');
+  renderPage();
+}
+
+async function renderPage(force=false) {
+  const host = $('#page');
+  if (!host) return;
+  host.innerHTML = '';
+  if (state.page === 'dashboard') await renderDashboard(host, force);
+  else if (state.page === 'projects')  await renderProjects(host, force);
+  else if (state.page === 'companies') await renderCompanies(host, force);
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function renderDashboard(host, force) {
+  const node = tpl('tpl-page-dashboard');
+  if (force || !state.projects.length) await loadProjects();
+  const projects = state.projects;
+
+  const isSuper = state.profile.role === 'super_admin';
+  const showFinance = ['admin','chef','super_admin'].includes(state.profile.role);
+
+  const kpis = [
+    { label:'Chantiers actifs', value: projects.filter(p => p.status === 'en_cours').length, color:'text-amber-400' },
+    { label:'Planifies',        value: projects.filter(p => p.status === 'planifie').length, color:'text-sky-400' },
+    { label:'Termines',         value: projects.filter(p => p.status === 'termine').length,  color:'text-emerald-400' },
+    { label:'Total',            value: projects.length, color:'text-brand-400' },
+  ];
+  if (showFinance) {
+    const ca = projects.filter(p => ['en_cours','termine'].includes(p.status)).reduce((s,p) => s + Number(p.budget_ht || 0), 0);
+    kpis[3] = { label:'CA en cours', value: fmtMoney(ca), color:'text-brand-400' };
+  }
+
+  const kpisEl = $('[data-bind="kpis"]', node);
+  kpisEl.innerHTML = kpis.map(k => `
+    <div class="glass rounded-2xl p-5">
+      <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">${escapeHtml(k.label)}</div>
+      <div class="text-2xl md:text-3xl font-bold ${k.color}">${escapeHtml(k.value)}</div>
+    </div>
+  `).join('');
+
+  const recent = [...projects].sort((a,b) => new Date(b.updated_at) - new Date(a.updated_at)).slice(0, 6);
+  const recentEl = $('[data-bind="recent"]', node);
+  if (!recent.length) {
+    recentEl.innerHTML = `<p class="text-sm text-slate-500">Aucun chantier pour l'instant. ${isSuper ? '' : "Cree ton premier chantier dans l'onglet Chantiers."}</p>`;
+  } else {
+    recentEl.innerHTML = recent.map(p => `
+      <div class="flex items-center justify-between p-3 rounded-lg hover:bg-ink-800/50 transition">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-2 h-10 rounded-full ${{'devis':'bg-slate-500','planifie':'bg-sky-500','en_cours':'bg-amber-500','termine':'bg-emerald-500','archive':'bg-slate-700'}[p.status]}"></div>
+          <div class="min-w-0">
+            <div class="font-medium truncate">${escapeHtml(p.name)}</div>
+            <div class="text-xs text-slate-500">${escapeHtml(p.client_name || '-')} ${p.city ? '&middot; ' + escapeHtml(p.city) : ''}</div>
+          </div>
+        </div>
+        <span class="badge ${STATUS_COLORS[p.status]}">${STATUS_LABELS[p.status]}</span>
+      </div>
+    `).join('');
+  }
+  host.appendChild(node);
+}
+
+// ============================================================
+// PROJECTS
+// ============================================================
+async function loadProjects() {
+  // Ouvriers : on lit la VIEW (sans budget)
+  const target = state.profile.role === 'ouvrier' ? 'projects_safe' : 'projects';
+  const { data, error } = await supa.from(target).select('*').order('created_at', { ascending: false });
+  if (error) { notify(error.message, 'error'); state.projects = []; return; }
+  state.projects = data || [];
+}
+
+async function renderProjects(host, force) {
+  const node = tpl('tpl-page-projects');
+  if (force || !state.projects.length) await loadProjects();
+
+  // Hide create button for ouvrier
+  $$('[data-role]', node).forEach(el => {
+    const allowed = el.dataset.role.split(',').map(s => s.trim());
+    if (!allowed.includes(state.profile.role)) el.remove();
+  });
+
+  const search = $('[data-bind="search"]', node);
+  const filter = $('[data-bind="filter-status"]', node);
+  search.value = state.search;
+  filter.value = state.filterStatus;
+  search.addEventListener('input',  e => { state.search = e.target.value; renderList(); });
+  filter.addEventListener('change', e => { state.filterStatus = e.target.value; renderList(); });
+
+  const newBtn = $('[data-action="new-project"]', node);
+  if (newBtn) newBtn.addEventListener('click', () => openProjectModal(null));
+
+  function renderList() {
+    const list = $('[data-bind="list"]', node);
+    const empty = $('[data-bind="empty"]', node);
+    const q = state.search.toLowerCase().trim();
+    const filtered = state.projects.filter(p => {
+      if (state.filterStatus && p.status !== state.filterStatus) return false;
+      if (!q) return true;
+      return [p.name, p.client_name, p.city, p.address, p.reference].some(v => v && String(v).toLowerCase().includes(q));
+    });
+    list.innerHTML = '';
+    empty.classList.toggle('hidden', filtered.length > 0);
+    const showFinance = ['admin','chef','super_admin'].includes(state.profile.role);
+    const canEdit     = ['admin','chef','super_admin'].includes(state.profile.role);
+    filtered.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'glass rounded-2xl p-5 hover:border-brand-500/40 transition cursor-pointer';
+      card.innerHTML = `
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="min-w-0">
+            <div class="font-bold truncate">${escapeHtml(p.name)}</div>
+            <div class="text-xs text-slate-500 mt-0.5">${escapeHtml(p.reference || '')}</div>
+          </div>
+          <span class="badge ${STATUS_COLORS[p.status]}">${STATUS_LABELS[p.status]}</span>
+        </div>
+        ${p.client_name ? `<div class="text-sm text-slate-300 mb-1">${escapeHtml(p.client_name)}</div>` : ''}
+        ${(p.city || p.address) ? `<div class="text-xs text-slate-500 mb-3">${escapeHtml([p.address, p.zip_code, p.city].filter(Boolean).join(' '))}</div>` : ''}
+        <div class="flex items-center justify-between gap-2 pt-3 border-t border-ink-700/50">
+          <div class="flex items-center gap-2 text-xs text-slate-400">
+            ${p.start_date ? `<span>${fmtDate(p.start_date)}${p.end_date ? ' &rarr; ' + fmtDate(p.end_date) : ''}</span>` : '<span class="text-slate-600">Dates non definies</span>'}
+          </div>
+          <span class="badge ${PRIO_COLORS[p.priority]}">${escapeHtml(p.priority)}</span>
+        </div>
+        ${showFinance && p.budget_ht ? `<div class="mt-3 text-sm"><span class="text-slate-500">Budget HT :</span> <b class="text-brand-400">${fmtMoney(p.budget_ht)}</b></div>` : ''}
+      `;
+      if (canEdit) {
+        card.addEventListener('click', () => openProjectModal(p));
+      }
+      list.appendChild(card);
+    });
+  }
+
+  host.appendChild(node);
+  renderList();
+}
+
+function openProjectModal(p) {
+  const node = tpl('tpl-modal-project');
+  state.editing = p;
+  bind(node, 'title', p ? 'Modifier le chantier' : 'Nouveau chantier');
+
+  // Hide finance for non-admin/chef (shouldn't reach here but safety)
+  if (!['admin','chef','super_admin'].includes(state.profile.role)) {
+    $('[data-finance]', node)?.remove();
+  }
+
+  const form = $('form[data-form="project"]', node);
+  if (p) {
+    Object.entries(p).forEach(([k, v]) => {
+      const input = form.elements.namedItem(k);
+      if (input && v != null) input.value = v;
+    });
+  }
+
+  function close() { document.body.removeChild(modalEl); }
+  $$('[data-action="close"]', node).forEach(b => b.addEventListener('click', close));
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(form);
+    const payload = {};
+    for (const [k, v] of fd.entries()) {
+      const trimmed = typeof v === 'string' ? v.trim() : v;
+      payload[k] = trimmed === '' ? null : trimmed;
+    }
+    // Coerce numerics
+    ['estimated_hours','budget_ht','budget_ttc'].forEach(k => {
+      if (payload[k] != null) payload[k] = Number(payload[k]);
+    });
+    payload.company_id = state.company?.id;
+
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = '...';
+
+    let res;
+    if (p) {
+      res = await supa.from('projects').update(payload).eq('id', p.id).select().single();
+    } else {
+      payload.created_by = state.user.id;
+      res = await supa.from('projects').insert(payload).select().single();
+    }
+    btn.disabled = false; btn.textContent = 'Enregistrer';
+    if (res.error) { notify(res.error.message, 'error'); return; }
+    notify(p ? 'Chantier mis a jour' : 'Chantier cree', 'success');
+    close();
+    state.projects = [];
+    renderPage(true);
+  });
+
+  // Bouton supprimer (uniquement edition + role admin)
+  if (p && state.profile.role === 'admin') {
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'mr-auto text-sm font-medium text-rose-400 hover:text-rose-300 px-2 py-2';
+    delBtn.textContent = 'Supprimer';
+    delBtn.addEventListener('click', async () => {
+      if (!confirm(`Supprimer le chantier "${p.name}" ? Cette action est irreversible.`)) return;
+      const { error } = await supa.from('projects').delete().eq('id', p.id);
+      if (error) { notify(error.message, 'error'); return; }
+      notify('Chantier supprime', 'success');
+      close();
+      state.projects = [];
+      renderPage(true);
+    });
+    form.querySelector('.flex.items-center.justify-end').prepend(delBtn);
+  }
+
+  document.body.appendChild(node);
+  const modalEl = document.body.lastElementChild;
+}
+
+// ============================================================
+// COMPANIES (super-admin)
+// ============================================================
+async function renderCompanies(host) {
+  const node = tpl('tpl-page-companies');
+  const { data, error } = await supa.from('companies').select('*').order('created_at', { ascending: false });
+  if (error) { notify(error.message, 'error'); host.appendChild(node); return; }
+
+  const pending = data.filter(c => c.status === 'pending');
+  const all = data;
+
+  const pendingEl = $('[data-bind="pending"]', node);
+  if (!pending.length) {
+    pendingEl.innerHTML = '<p class="text-sm text-slate-500">Aucune entreprise en attente.</p>';
+  } else {
+    pending.forEach(c => {
+      const row = document.createElement('div');
+      row.className = 'flex items-center justify-between p-3 rounded-lg bg-ink-900/50';
+      row.innerHTML = `
+        <div>
+          <div class="font-medium">${escapeHtml(c.name)}</div>
+          <div class="text-xs text-slate-500">${escapeHtml(c.trade || '-')} &middot; cree le ${fmtDate(c.created_at)}</div>
+        </div>
+        <div class="flex gap-2">
+          <button class="approve text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg">Approuver</button>
+          <button class="reject  text-xs bg-rose-700/80 hover:bg-rose-600 text-white font-bold px-3 py-1.5 rounded-lg">Rejeter</button>
+        </div>
+      `;
+      row.querySelector('.approve').addEventListener('click', async () => {
+        const { error } = await supa.rpc('approve_company', { p_company_id: c.id });
+        if (error) { notify(error.message, 'error'); return; }
+        notify('Entreprise approuvee', 'success'); renderPage(true);
+      });
+      row.querySelector('.reject').addEventListener('click', async () => {
+        if (!confirm(`Rejeter "${c.name}" ?`)) return;
+        const { error } = await supa.rpc('reject_company', { p_company_id: c.id });
+        if (error) { notify(error.message, 'error'); return; }
+        notify('Entreprise rejetee', 'success'); renderPage(true);
+      });
+      pendingEl.appendChild(row);
+    });
+  }
+
+  const allEl = $('[data-bind="all"]', node);
+  all.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'flex items-center justify-between p-3 rounded-lg hover:bg-ink-800/50';
+    const colors = { pending:'bg-amber-900/60 text-amber-300', active:'bg-emerald-900/60 text-emerald-300', suspended:'bg-orange-900/60 text-orange-300', rejected:'bg-rose-900/60 text-rose-300' };
+    row.innerHTML = `
+      <div>
+        <div class="font-medium">${escapeHtml(c.name)}</div>
+        <div class="text-xs text-slate-500">${escapeHtml(c.trade || '-')}</div>
+      </div>
+      <span class="badge ${colors[c.status] || 'bg-slate-700'}">${escapeHtml(c.status)}</span>
+    `;
+    allEl.appendChild(row);
+  });
+
+  host.appendChild(node);
+}
+
+// ============================================================
+// AUTH FLOW
+// ============================================================
+async function logout() {
+  await supa.auth.signOut();
+  state.user = state.profile = state.company = null;
+  state.projects = [];
+  showAuth();
+}
+
+async function loadProfile() {
+  const { data: profile, error } = await supa.from('profiles').select('*').eq('id', state.user.id).maybeSingle();
+  if (error) throw error;
+  state.profile = profile;
+  if (profile?.company_id) {
+    const { data: company } = await supa.from('companies').select('*').eq('id', profile.company_id).maybeSingle();
+    state.company = company;
+  } else {
+    state.company = null;
+  }
+}
+
+async function boot() {
+  if (!supa) { showSetup(); return; }
+  render(tpl('tpl-loading'));
+  const { data: { session }, error } = await supa.auth.getSession();
+  if (error) { notify(error.message, 'error'); showAuth(); return; }
+  if (!session) { showAuth(); return; }
+  state.user = session.user;
+  try { await loadProfile(); }
+  catch (e) { notify(e.message, 'error'); showAuth(); return; }
+
+  // Routing par etat
+  if (!state.profile) { showAuth(); return; }
+  if (state.profile.role === 'super_admin') { showApp(); return; }
+  if (!state.profile.company_id || !state.profile.role) { showOnboarding(); return; }
+  if (state.profile.status === 'pending') { showPending(); return; }
+  showApp();
+}
+
+// Auto-refresh on auth change (other tab logout, etc.)
+if (supa) {
+  supa.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') showAuth();
+  });
+}
+
+// Go!
+boot();
+</script>
+</body>
+</html>

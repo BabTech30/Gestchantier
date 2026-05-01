@@ -38,14 +38,22 @@ GestChantier-SaaS/
 ## 🚀 Roadmap
 
 - [x] Phase 0 — Setup comptes Supabase + Resend
-- [ ] Phase 1 — Schéma de la base de données
-- [ ] Phase 2 — Sécurité RLS multi-tenant
-- [ ] Phase 3 — Auth + page inscription
-- [ ] Phase 4 — Page de login
-- [ ] Phase 5 — Dashboard super-admin
-- [ ] Phase 6 — Système d'invitations
-- [ ] Phase 7 — Migration des 7 modules métier
-- [ ] Phase 8 — Polish + déploiement
+- [x] Phase 1 — Schéma de la base (companies, profiles, projects)
+- [x] Phase 2 — Sécurité RLS multi-tenant (companies, profiles, projects)
+- [x] Phase 3 — Auth + page inscription (app.html)
+- [x] Phase 4 — Page de login (app.html)
+- [x] Phase 5 — Dashboard super-admin (validation des entreprises)
+- [ ] Phase 6 — Système d'invitations + emails (Resend)
+- [ ] Phase 7 — Modules métier restants (équipe, outils, matériel, todos, messages)
+- [ ] Phase 8 — Polish + déploiement Netlify + paiement Stripe
+
+## ▶️ Démarrer en local
+
+1. Applique les migrations SQL dans Supabase (SQL Editor) **dans l'ordre** : `001` → `008`.
+2. Crée ton compte super-admin dans Supabase Auth, puis exécute `sql/003_seed_super_admin.sql`.
+3. Ouvre `public/app.html` dans un navigateur (double-clic ou via `python3 -m http.server` dans `/public`).
+4. Renseigne ton **Supabase URL** et **anon key** au premier lancement (stockés en localStorage).
+5. Connecte-toi avec ton compte super-admin → tu vois le panneau "Entreprises" pour valider les inscriptions.
 
 ## 📝 Licence
 
