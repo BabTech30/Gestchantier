@@ -61,18 +61,23 @@ SaaS de gestion de chantier pour artisans BTP, multi-entreprises, avec hiérarch
 
 Voir `/sql/` pour les scripts de migration.
 
-### Tables principales prévues
+### Tables principales
 
-- `companies` — entreprises clientes
-- `profiles` — utilisateurs (extension de `auth.users` Supabase)
-- `invitations` — invitations en attente
-- `team_members` — fiches équipe (peut inclure des sous-traitants sans compte)
-- `tools` — outillage
-- `projects` — chantiers
-- `project_notes` — notes datées par chantier
-- `materials` — matériel
-- `todos` — tâches
-- `announcements` — messages
+| Table | Migration | Statut |
+|---|---|---|
+| `companies` — entreprises clientes | 001 / 004 | ✅ |
+| `profiles` — utilisateurs (extension de `auth.users`) | 002 / 005 | ✅ |
+| `projects` — chantiers (+ vue `projects_safe` sans budget) | 007 / 008 / 013 | ✅ |
+| `invitations` — invitations en attente | 009 / 010 | ✅ |
+| `tools` — outillage | 011 / 012 | ✅ |
+| `materials` — matériel / fournitures | 011 / 012 | ✅ |
+| `todos` — tâches « À prévoir » (RPC `set_todo_done` pour les ouvriers) | 011 / 012 | ✅ |
+| `announcements` — messages internes | 011 / 012 | ✅ |
+| `project_notes` — journal de chantier | 011 / 012 | ✅ |
+| `team_members` — fiches équipe sans compte (sous-traitants, taux horaires) | — | ⏳ à faire |
+
+Règle commune des modules métier : **lecture** pour tous les membres actifs de l'entreprise,
+**écriture** pour admin et chef. Un trigger vérifie qu'un `project_id` appartient bien à la même entreprise.
 
 ## 🔐 Sécurité
 

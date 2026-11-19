@@ -47,13 +47,14 @@ GestChantier-SaaS/
 - [x] Phase 6.5 — PWA installable (manifest + service worker + mode offline shell)
 - [x] Phase 6.6 — Déploiement Netlify (`netlify.toml` + headers + SPA fallback)
 - [ ] Phase 6.7 — Edge Function Resend pour envoi auto des invitations par email
-- [ ] Phase 7 — Modules métier restants (outillage, matériel, todos, messages)
+- [x] Phase 7 — Modules métier : À prévoir (tâches), Matériel, Outillage, Messages, Journal de chantier + dictée vocale
+- [x] Phase 7.1 — Correctif sécurité : budgets réellement invisibles pour les ouvriers (migration 013)
 - [ ] Phase 8 — Polish + paiement Stripe
 
 ## ▶️ Démarrer en local
 
 **Option 1 — Manuel (5 min) :**
-1. Applique les migrations SQL dans Supabase (SQL Editor) **dans l'ordre** : `001` → `010`.
+1. Applique les migrations SQL dans Supabase (SQL Editor) **dans l'ordre** : `001` → `013`.
 2. Crée ton compte super-admin dans Supabase Auth, puis exécute `sql/003_seed_super_admin.sql`.
 3. Ouvre `public/app.html` dans un navigateur (double-clic ou `python3 -m http.server` dans `/public`).
 4. Renseigne ton **Supabase URL** et **anon key** au premier lancement (stockés en localStorage).
@@ -76,6 +77,21 @@ brew install supabase/tap/supabase   # si pas déjà fait
 
 Sur le téléphone des ouvriers : ouvrir l'URL Netlify dans Safari/Chrome → "Ajouter à l'écran d'accueil".
 L'app s'installe comme une vraie app native, fonctionne en mode plein écran, et le shell est mis en cache pour les zones de chantier sans réseau.
+
+## 🧰 Modules métier (Phase 7)
+
+| Module | Admin / Chef | Ouvrier |
+|---|---|---|
+| **À prévoir** (tâches) | crée, modifie, assigne, supprime | voit, **coche** les tâches |
+| **Matériel** (à commander → commandé → en stock → livré) | gère | consulte |
+| **Outillage** (état + emplacement) | gère | consulte |
+| **Messages** internes | publie, épingle | lit |
+| **Journal de chantier** (bouton « Journal » sur chaque chantier) | écrit, supprime | **écrit**, supprime ses notes |
+
+Le tableau de bord remonte les alertes : tâches en retard, tâches du jour, matériel à commander, outils à réparer.
+Sur mobile (Chrome/Android, Safari récent), un bouton micro permet de **dicter** titres et notes.
+
+Présentation non technique du produit : [`docs/presentation-commerciale.md`](docs/presentation-commerciale.md).
 
 ## 👥 Inviter un membre
 

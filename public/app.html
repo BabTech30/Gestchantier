@@ -213,6 +213,22 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 9h2M13 9h2M9 13h2M13 13h2M9 17h2M13 17h2"/></svg>
           Chantiers
         </button>
+        <button data-page="todos" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          A prevoir
+        </button>
+        <button data-page="materials" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg>
+          Materiel
+        </button>
+        <button data-page="tools" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          Outillage
+        </button>
+        <button data-page="messages" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Messages
+        </button>
         <button data-page="team" data-role="admin,chef,super_admin" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-left transition">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Equipe
@@ -255,6 +271,10 @@
       <div class="md:hidden flex border-b border-ink-700/50 bg-ink-900/60 overflow-x-auto" data-nav-mobile>
         <button data-page="dashboard" class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Dashboard</button>
         <button data-page="projects"  class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Chantiers</button>
+        <button data-page="todos"     class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">A prevoir</button>
+        <button data-page="materials" class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Materiel</button>
+        <button data-page="tools"     class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Outillage</button>
+        <button data-page="messages"  class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Messages</button>
         <button data-page="team"      data-role="admin,chef,super_admin" class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Equipe</button>
         <button data-page="companies" data-role="super_admin" class="nav-btn px-4 py-3 text-sm font-medium whitespace-nowrap">Entreprises</button>
       </div>
@@ -267,9 +287,85 @@
 <template id="tpl-page-dashboard">
   <div class="anim-in space-y-6">
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4" data-bind="kpis"></div>
-    <div class="glass rounded-2xl p-6">
-      <h2 class="text-lg font-semibold mb-4">Activite recente</h2>
-      <div data-bind="recent" class="space-y-2"></div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" data-bind="alerts"></div>
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div class="glass rounded-2xl p-6">
+        <h2 class="text-lg font-semibold mb-4">Activite recente</h2>
+        <div data-bind="recent" class="space-y-2"></div>
+      </div>
+      <div class="space-y-6">
+        <div class="glass rounded-2xl p-6">
+          <h2 class="text-lg font-semibold mb-4">A faire en priorite</h2>
+          <div data-bind="urgent-todos" class="space-y-2"></div>
+        </div>
+        <div class="glass rounded-2xl p-6">
+          <h2 class="text-lg font-semibold mb-4">Derniers messages</h2>
+          <div data-bind="last-messages" class="space-y-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Page generique des modules metier (outillage, materiel, a prevoir, messages) -->
+<template id="tpl-page-module">
+  <div class="anim-in space-y-5">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-3 flex-wrap" data-bind="filters"></div>
+      <button data-action="new" class="hidden bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold px-4 py-2 rounded-lg text-sm transition flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+        <span data-bind="new-label">Ajouter</span>
+      </button>
+    </div>
+    <div data-bind="summary" class="flex flex-wrap gap-2"></div>
+    <div data-bind="list"></div>
+  </div>
+</template>
+
+<!-- Modale de formulaire generique -->
+<template id="tpl-modal-form">
+  <div class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 anim-in" data-modal>
+    <div class="glass rounded-2xl p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-5">
+        <h2 class="text-xl font-bold" data-bind="title"></h2>
+        <button type="button" data-action="close" class="text-slate-400 hover:text-white p-1">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form data-form="generic" class="space-y-4">
+        <div data-bind="fields" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <div data-bind="actions" class="flex items-center justify-end gap-3 pt-2">
+          <button type="button" data-action="close" class="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white">Annuler</button>
+          <button type="submit" class="bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold px-5 py-2 rounded-lg text-sm transition">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</template>
+
+<!-- Journal de chantier -->
+<template id="tpl-modal-notes">
+  <div class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 anim-in" data-modal>
+    <div class="glass rounded-2xl p-6 w-full max-w-xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <div class="min-w-0">
+          <div class="text-xs uppercase tracking-wider text-slate-500">Journal de chantier</div>
+          <h2 class="text-xl font-bold truncate" data-bind="title"></h2>
+        </div>
+        <button type="button" data-action="close" class="text-slate-400 hover:text-white p-1">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <form data-form="note" class="mb-4">
+        <div class="flex gap-2">
+          <textarea name="content" rows="3" required placeholder="Ex : Placo pose dans le salon, reste les bandes..." class="flex-1 bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500"></textarea>
+          <div data-bind="mic" class="self-start"></div>
+        </div>
+        <div class="flex justify-end mt-2">
+          <button type="submit" class="bg-brand-500 hover:bg-brand-400 text-ink-950 font-bold px-4 py-2 rounded-lg text-sm transition">Ajouter la note</button>
+        </div>
+      </form>
+      <div data-bind="list" class="space-y-2 overflow-y-auto flex-1"></div>
     </div>
   </div>
 </template>
@@ -774,7 +870,7 @@ function navigate(page) {
     b.classList.toggle('text-slate-400',  !active);
     b.classList.toggle('hover:bg-ink-700/50', !active);
   });
-  bind(document, 'page-title', { dashboard:'Tableau de bord', projects:'Chantiers', team:'Equipe', companies:'Entreprises' }[page] || '');
+  bind(document, 'page-title', { dashboard:'Tableau de bord', projects:'Chantiers', todos:'A prevoir', materials:'Materiel', tools:'Outillage', messages:'Messages', team:'Equipe', companies:'Entreprises' }[page] || '');
   renderPage();
 }
 
@@ -784,6 +880,7 @@ async function renderPage(force=false) {
   host.innerHTML = '';
   if (state.page === 'dashboard') await renderDashboard(host, force);
   else if (state.page === 'projects')  await renderProjects(host, force);
+  else if (MODULES[state.page])        await renderModule(host, MODULES[state.page], force);
   else if (state.page === 'team')      await renderTeam(host, force);
   else if (state.page === 'companies') await renderCompanies(host, force);
 }
@@ -836,6 +933,58 @@ async function renderDashboard(host, force) {
       </div>
     `).join('');
   }
+
+  // ---- Alertes des modules metier (pas pour le super-admin) ----
+  const urgentEl = $('[data-bind="urgent-todos"]', node);
+  const msgEl    = $('[data-bind="last-messages"]', node);
+  if (isSuper) {
+    urgentEl.closest('.space-y-6').remove();
+  } else {
+    const [tools, materials, todos, msgs] = await Promise.all([
+      loadTable('tools', force), loadTable('materials', force),
+      loadTable('todos', force), loadTable('announcements', force),
+    ]);
+    const today = todayISO();
+    const open  = todos.filter(t => !t.done);
+    const alerts = [
+      { label:'Taches en retard',     value: open.filter(t => t.due_date && t.due_date < today).length, page:'todos',     color:'text-rose-400' },
+      { label:"A faire aujourd'hui",  value: open.filter(t => t.due_date === today).length,             page:'todos',     color:'text-amber-400' },
+      { label:'Materiel a commander', value: materials.filter(m => m.status === 'a_commander').length, page:'materials', color:'text-sky-400' },
+      { label:'Outils a reparer',     value: tools.filter(t => t.status !== 'ok').length,              page:'tools',     color:'text-orange-400' },
+    ];
+    const alertsEl = $('[data-bind="alerts"]', node);
+    alertsEl.innerHTML = alerts.map(a => `
+      <button data-goto="${a.page}" class="glass rounded-2xl p-5 text-left hover:border-brand-500/40 transition">
+        <div class="text-xs uppercase tracking-wider text-slate-500 mb-2">${escapeHtml(a.label)}</div>
+        <div class="text-2xl md:text-3xl font-bold ${a.value ? a.color : 'text-slate-600'}">${a.value}</div>
+      </button>
+    `).join('');
+    $$('[data-goto]', alertsEl).forEach(b => b.addEventListener('click', () => navigate(b.dataset.goto)));
+
+    const top = sortTodos(open).slice(0, 5);
+    urgentEl.innerHTML = top.length
+      ? top.map(t => `
+          <div class="flex items-center justify-between gap-3 p-3 rounded-lg bg-ink-900/40">
+            <div class="min-w-0">
+              <div class="font-medium truncate">${escapeHtml(t.title)}</div>
+              <div class="text-xs text-slate-500 truncate">${escapeHtml(projectName(t.project_id) || 'General')}</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">${dueBadge(t)}${badge(TODO_PRIO[t.priority])}</div>
+          </div>`).join('')
+      : '<p class="text-sm text-slate-500">Rien a signaler, tout est sous controle.</p>';
+
+    const lastMsgs = sortMessages(msgs).slice(0, 3);
+    msgEl.innerHTML = lastMsgs.length
+      ? lastMsgs.map(m => `
+          <div class="p-3 rounded-lg bg-ink-900/40 border-l-4 ${MSG_PRIO[m.priority][2]}">
+            <div class="flex items-center justify-between gap-2">
+              <div class="font-medium truncate">${m.pinned ? '&#128204; ' : ''}${escapeHtml(m.title)}</div>
+              ${badge(MSG_PRIO[m.priority])}
+            </div>
+            <div class="text-xs text-slate-400 mt-1 line-clamp-2">${escapeHtml(m.content)}</div>
+          </div>`).join('')
+      : '<p class="text-sm text-slate-500">Aucun message.</p>';
+  }
   host.appendChild(node);
 }
 
@@ -870,9 +1019,10 @@ async function renderProjects(host, force) {
   const newBtn = $('[data-action="new-project"]', node);
   if (newBtn) newBtn.addEventListener('click', () => openProjectModal(null));
 
+  // Capturer les elements AVANT host.appendChild(node) : apres, le fragment est vide
+  const list  = $('[data-bind="list"]', node);
+  const empty = $('[data-bind="empty"]', node);
   function renderList() {
-    const list = $('[data-bind="list"]', node);
-    const empty = $('[data-bind="empty"]', node);
     const q = state.search.toLowerCase().trim();
     const filtered = state.projects.filter(p => {
       if (state.filterStatus && p.status !== state.filterStatus) return false;
@@ -903,7 +1053,17 @@ async function renderProjects(host, force) {
           <span class="badge ${PRIO_COLORS[p.priority]}">${escapeHtml(p.priority)}</span>
         </div>
         ${showFinance && p.budget_ht ? `<div class="mt-3 text-sm"><span class="text-slate-500">Budget HT :</span> <b class="text-brand-400">${fmtMoney(p.budget_ht)}</b></div>` : ''}
+        <div class="mt-3 flex justify-end">
+          <button type="button" class="journal text-xs bg-ink-700 hover:bg-ink-600 text-slate-200 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M6.5 17A2.5 2.5 0 0 0 4 19.5 2.5 2.5 0 0 0 6.5 22H20v-5"/></svg>
+            Journal
+          </button>
+        </div>
       `;
+      card.querySelector('.journal').addEventListener('click', e => {
+        e.stopPropagation();
+        openNotesModal(p);
+      });
       if (canEdit) {
         card.addEventListener('click', () => openProjectModal(p));
       }
@@ -988,6 +1148,600 @@ function openProjectModal(p) {
 
   document.body.appendChild(node);
   const modalEl = document.body.lastElementChild;
+}
+
+// ============================================================
+// MODULES METIER (Phase 7) : outillage, materiel, a prevoir, messages
+// ============================================================
+const cache = { tools:null, materials:null, todos:null, announcements:null, members:null };
+const moduleFilters = {};
+
+const canManage = () => ['admin','chef'].includes(state.profile?.role);
+
+function todayISO() {
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 10);
+}
+function fmtDateTime(d) {
+  if (!d) return '';
+  return new Date(d).toLocaleString('fr-FR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+function textMatch(q, values) {
+  q = (q || '').toLowerCase().trim();
+  if (!q) return true;
+  return values.some(v => v && String(v).toLowerCase().includes(q));
+}
+const badge = ([label, cls]) => `<span class="badge ${cls}">${escapeHtml(label)}</span>`;
+const chip  = (label, n, cls='bg-ink-700 text-slate-300') => `<span class="badge ${cls}" style="font-size:12px;padding:4px 10px">${escapeHtml(label)} : <b>${n}</b></span>`;
+
+const TABLE_ORDER = {
+  tools:         ['name', true],
+  materials:     ['created_at', false],
+  todos:         ['created_at', false],
+  announcements: ['created_at', false],
+};
+async function loadTable(table, force=false) {
+  if (!force && cache[table]) return cache[table];
+  const [col, asc] = TABLE_ORDER[table];
+  const { data, error } = await supa.from(table).select('*').order(col, { ascending: asc });
+  if (error) { notify(`${table} : ${error.message}`, 'error'); cache[table] = []; return []; }
+  cache[table] = data || [];
+  return cache[table];
+}
+async function loadMembers(force=false) {
+  if (!force && cache.members) return cache.members;
+  if (!state.company) { cache.members = []; return []; }
+  const { data } = await supa.from('profiles')
+    .select('id, first_name, last_name, email, role')
+    .eq('company_id', state.company.id).not('role', 'is', null);
+  cache.members = data || [];
+  return cache.members;
+}
+function memberName(id) {
+  const m = (cache.members || []).find(x => x.id === id);
+  return m ? (`${m.first_name || ''} ${m.last_name || ''}`.trim() || m.email) : '';
+}
+const projectName = id => state.projects.find(p => p.id === id)?.name || '';
+const projectOptions = (emptyLabel) => () => [['', emptyLabel], ...state.projects.map(p => [p.id, p.name])];
+const memberOptions  = () => [['', 'Personne en particulier'], ...(cache.members || []).map(m => [m.id, memberName(m.id)])];
+
+// ---- Libelles / couleurs ----
+const TOOL_STATUS = {
+  ok:         ['OK',            'bg-emerald-900/60 text-emerald-300'],
+  reparation: ['En reparation', 'bg-amber-900/60 text-amber-300'],
+  hs:         ['HS',            'bg-rose-900/70 text-rose-300'],
+};
+const TOOL_LOCATIONS  = { camion:'Camion', depot:'Depot', atelier:'Atelier', chantier:'Sur chantier' };
+const TOOL_CATEGORIES = ['Electroportatif', 'Outillage a main', 'Mesure / laser', 'Echafaudage / echelle', 'Securite / EPI', 'Vehicule', 'Autre'];
+
+const MAT_STATUS = {
+  a_commander: ['A commander', 'bg-rose-900/60 text-rose-300'],
+  commande:    ['Commande',    'bg-sky-900/60 text-sky-300'],
+  en_stock:    ['En stock',    'bg-slate-700 text-slate-200'],
+  livre:       ['Livre',       'bg-emerald-900/60 text-emerald-300'],
+};
+const MAT_FLOW  = ['a_commander', 'commande', 'en_stock', 'livre'];
+const MAT_UNITS = ['unites', 'plaques', 'metres', 'm2', 'sacs', 'rouleaux', 'kg', 'litres', 'boites'];
+
+const TODO_PRIO = {
+  urgente: ['Urgent', 'bg-rose-900/70 text-rose-300'],
+  normale: ['Normal', 'bg-slate-700 text-slate-300'],
+  basse:   ['Faible', 'bg-slate-800 text-slate-400'],
+};
+const TODO_CATEGORIES = ['Chantier', 'Commande', 'Administratif', 'Devis / client', 'Vehicule', 'Autre'];
+
+const MSG_PRIO = {
+  info:      ['Information', 'bg-sky-900/60 text-sky-300',     'border-sky-500/40'],
+  important: ['Important',   'bg-amber-900/60 text-amber-300', 'border-amber-500/50'],
+  urgent:    ['Urgent',      'bg-rose-900/70 text-rose-300',   'border-rose-500/60'],
+};
+
+function sortTodos(list) {
+  const prio = { urgente:0, normale:1, basse:2 };
+  return [...list].sort((a, b) =>
+    (a.done - b.done)
+    || ((a.due_date || '9999') < (b.due_date || '9999') ? -1 : (a.due_date || '9999') > (b.due_date || '9999') ? 1 : 0)
+    || (prio[a.priority] - prio[b.priority])
+  );
+}
+function sortMessages(list) {
+  return [...list].sort((a, b) => (b.pinned - a.pinned) || (new Date(b.created_at) - new Date(a.created_at)));
+}
+function dueBadge(t) {
+  if (!t.due_date) return '';
+  const today = todayISO();
+  if (!t.done && t.due_date < today)   return `<span class="badge bg-rose-900/70 text-rose-300">En retard &middot; ${fmtDate(t.due_date)}</span>`;
+  if (!t.done && t.due_date === today) return `<span class="badge bg-amber-900/60 text-amber-300">Aujourd'hui</span>`;
+  return `<span class="badge bg-ink-700 text-slate-400">${fmtDate(t.due_date)}</span>`;
+}
+
+// ---- Dictee vocale (pratique sur chantier, gants aux mains) ----
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+function micButton(target) {
+  if (!SpeechRec || !target) return null;
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.title = 'Dicter';
+  b.className = 'p-2 rounded-lg bg-ink-700 hover:bg-ink-600 text-slate-200 transition';
+  b.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/></svg>';
+  let rec = null;
+  b.addEventListener('click', () => {
+    if (rec) { rec.stop(); return; }
+    rec = new SpeechRec();
+    rec.lang = 'fr-FR';
+    rec.interimResults = false;
+    rec.onresult = ev => {
+      const t = ev.results[0][0].transcript;
+      target.value = target.value ? target.value + ' ' + t : t;
+    };
+    rec.onerror = () => notify('Dictee indisponible', 'error');
+    rec.onend = () => { rec = null; b.classList.remove('bg-rose-600'); };
+    b.classList.add('bg-rose-600');
+    rec.start();
+  });
+  return b;
+}
+
+// ---- Formulaire generique ----
+function fieldHtml(f, value) {
+  const base = 'w-full bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-500';
+  const v = value ?? f.default ?? '';
+  const req = f.required ? 'required' : '';
+  let input;
+  if (f.type === 'select') {
+    input = `<select name="${f.name}" ${req} class="${base}">${f.options.map(([val, lab]) =>
+      `<option value="${escapeHtml(val)}" ${String(val) === String(v) ? 'selected' : ''}>${escapeHtml(lab)}</option>`).join('')}</select>`;
+  } else if (f.type === 'textarea') {
+    input = `<div class="flex gap-2"><textarea name="${f.name}" rows="${f.rows || 3}" ${req} placeholder="${escapeHtml(f.placeholder || '')}" class="${base} flex-1">${escapeHtml(v)}</textarea><span data-mic="${f.name}" class="self-start"></span></div>`;
+  } else if (f.type === 'checkbox') {
+    input = `<label class="flex items-center gap-2 text-sm py-2"><input type="checkbox" name="${f.name}" ${v ? 'checked' : ''} class="rounded bg-ink-900 border-ink-700 text-brand-500"> ${escapeHtml(f.checkLabel || '')}</label>`;
+  } else {
+    input = `<div class="flex gap-2"><input name="${f.name}" type="${f.type || 'text'}" ${req} ${f.step ? `step="${f.step}"` : ''} ${f.min != null ? `min="${f.min}"` : ''} value="${escapeHtml(v)}" placeholder="${escapeHtml(f.placeholder || '')}" class="${base} flex-1">${f.mic ? `<span data-mic="${f.name}"></span>` : ''}</div>`;
+  }
+  return `<div class="${f.span === 2 ? 'md:col-span-2' : ''}"><label class="block text-xs uppercase tracking-wide text-slate-400 mb-1">${escapeHtml(f.label)}${f.required ? ' *' : ''}</label>${input}</div>`;
+}
+
+function openFormModal({ title, fields, values = {}, onSubmit, onDelete }) {
+  const node = tpl('tpl-modal-form');
+  bind(node, 'title', title);
+  const resolved = fields.map(f => ({ ...f, options: typeof f.options === 'function' ? f.options() : f.options }));
+  $('[data-bind="fields"]', node).innerHTML = resolved.map(f => fieldHtml(f, values[f.name])).join('');
+  const form = $('form', node);
+  $$('[data-mic]', node).forEach(el => {
+    const b = micButton(form.elements.namedItem(el.dataset.mic));
+    if (b) el.appendChild(b);
+  });
+
+  document.body.appendChild(node);
+  const modalEl = document.body.lastElementChild;
+  const close = () => modalEl.remove();
+  $$('[data-action="close"]', modalEl).forEach(b => b.addEventListener('click', close));
+
+  if (onDelete) {
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'mr-auto text-sm font-medium text-rose-400 hover:text-rose-300 px-2 py-2';
+    del.textContent = 'Supprimer';
+    del.addEventListener('click', async () => { if (await onDelete()) close(); });
+    $('[data-bind="actions"]', modalEl).prepend(del);
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const payload = {};
+    resolved.forEach(f => {
+      const el = form.elements.namedItem(f.name);
+      if (f.type === 'checkbox') { payload[f.name] = el.checked; return; }
+      const v = el.value.trim();
+      if (v === '') { payload[f.name] = f.default ?? null; return; }
+      payload[f.name] = f.type === 'number' ? Number(v) : v;
+    });
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = '...';
+    const ok = await onSubmit(payload);
+    btn.disabled = false; btn.textContent = 'Enregistrer';
+    if (ok) close();
+  });
+}
+
+async function saveRow(table, payload, existing) {
+  const res = existing
+    ? await supa.from(table).update(payload).eq('id', existing.id)
+    : await supa.from(table).insert({ ...payload, company_id: state.company?.id });
+  if (res.error) { notify(res.error.message, 'error'); return false; }
+  notify(existing ? 'Modifications enregistrees' : 'Ajoute', 'success');
+  cache[table] = null;
+  renderPage();
+  return true;
+}
+async function deleteRow(table, row, label) {
+  if (!confirm(`Supprimer "${label}" ? Cette action est irreversible.`)) return false;
+  const { error } = await supa.from(table).delete().eq('id', row.id);
+  if (error) { notify(error.message, 'error'); return false; }
+  notify('Supprime', 'success');
+  cache[table] = null;
+  renderPage();
+  return true;
+}
+
+// ---- Page generique ----
+async function renderModule(host, mod, force) {
+  const node = tpl('tpl-page-module');
+  await Promise.all([
+    (force || !state.projects.length) ? loadProjects() : null,
+    loadMembers(force),
+    loadTable(mod.table, force),
+  ]);
+  const f = moduleFilters[mod.key] ||= { ...mod.defaultFilters };
+
+  const filtersEl = $('[data-bind="filters"]', node);
+  const ctl = 'bg-ink-900 border border-ink-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-500';
+  filtersEl.innerHTML = mod.filters.map(fl => fl.type === 'search'
+    ? `<input data-filter="${fl.key}" placeholder="${escapeHtml(fl.placeholder)}" class="${ctl} w-60 max-w-full">`
+    : `<select data-filter="${fl.key}" class="${ctl}">${(typeof fl.options === 'function' ? fl.options() : fl.options)
+        .map(([v, l]) => `<option value="${escapeHtml(v)}">${escapeHtml(l)}</option>`).join('')}</select>`
+  ).join('');
+  $$('[data-filter]', filtersEl).forEach(el => {
+    el.value = f[el.dataset.filter] ?? '';
+    el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', () => { f[el.dataset.filter] = el.value; draw(); });
+  });
+
+  const newBtn = $('[data-action="new"]', node);
+  if (canManage()) {
+    newBtn.classList.remove('hidden');
+    bind(node, 'new-label', mod.newLabel);
+    newBtn.addEventListener('click', () => mod.edit(null));
+  } else {
+    newBtn.remove();
+  }
+
+  const listEl    = $('[data-bind="list"]', node);
+  const summaryEl = $('[data-bind="summary"]', node);
+  function draw() {
+    const rows = cache[mod.table] || [];
+    summaryEl.innerHTML = mod.summary ? mod.summary(rows) : '';
+    const visible = rows.filter(r => mod.match(r, f));
+    listEl.innerHTML = '';
+    if (!visible.length) {
+      listEl.innerHTML = `<div class="text-center py-16 text-slate-500">${escapeHtml(rows.length ? 'Aucun resultat avec ces filtres.' : mod.empty)}</div>`;
+      return;
+    }
+    mod.render(listEl, visible, draw);
+  }
+  host.appendChild(node);
+  draw();
+}
+
+const MODULES = {
+  // ---------------- OUTILLAGE ----------------
+  tools: {
+    key: 'tools', table: 'tools', newLabel: 'Nouvel outil',
+    empty: "Aucun outil enregistre. Ajoute ton parc d'outils pour savoir ou il se trouve et dans quel etat.",
+    defaultFilters: { q: '', status: '', location: '' },
+    filters: [
+      { key: 'q', type: 'search', placeholder: 'Rechercher un outil...' },
+      { key: 'status',   type: 'select', options: [['', 'Tous etats'], ...Object.entries(TOOL_STATUS).map(([k, v]) => [k, v[0]])] },
+      { key: 'location', type: 'select', options: [['', 'Tous emplacements'], ...Object.entries(TOOL_LOCATIONS)] },
+    ],
+    match: (r, f) => (!f.status || r.status === f.status) && (!f.location || r.location === f.location)
+      && textMatch(f.q, [r.name, r.category, r.notes]),
+    summary: rows => chip('Outils', rows.reduce((s, r) => s + (r.quantity || 0), 0))
+      + chip('OK', rows.filter(r => r.status === 'ok').length, TOOL_STATUS.ok[1])
+      + chip('En reparation', rows.filter(r => r.status === 'reparation').length, TOOL_STATUS.reparation[1])
+      + chip('HS', rows.filter(r => r.status === 'hs').length, TOOL_STATUS.hs[1]),
+    render(listEl, rows) {
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4';
+      rows.forEach(t => {
+        const card = document.createElement('div');
+        card.className = `glass rounded-2xl p-5 transition ${canManage() ? 'cursor-pointer hover:border-brand-500/40' : ''}`;
+        const where = t.location === 'chantier' && t.project_id ? `Chantier : ${projectName(t.project_id)}` : TOOL_LOCATIONS[t.location];
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3 mb-2">
+            <div class="min-w-0">
+              <div class="font-bold truncate">${escapeHtml(t.name)}</div>
+              <div class="text-xs text-slate-500">${escapeHtml(t.category || 'Sans categorie')}</div>
+            </div>
+            ${badge(TOOL_STATUS[t.status])}
+          </div>
+          <div class="flex items-center justify-between text-sm text-slate-300 pt-3 border-t border-ink-700/50">
+            <span>&#128205; ${escapeHtml(where || '-')}</span>
+            <span class="text-slate-400">x${t.quantity}</span>
+          </div>
+          ${t.notes ? `<div class="text-xs text-slate-500 mt-2 line-clamp-2">${escapeHtml(t.notes)}</div>` : ''}
+        `;
+        if (canManage()) card.addEventListener('click', () => MODULES.tools.edit(t));
+        grid.appendChild(card);
+      });
+      listEl.appendChild(grid);
+    },
+    edit(row) {
+      openFormModal({
+        title: row ? "Modifier l'outil" : 'Nouvel outil',
+        values: row || {},
+        fields: [
+          { name: 'name', label: 'Nom', required: true, span: 2, mic: true, placeholder: 'Ex : Visseuse Makita 18V' },
+          { name: 'category', label: 'Categorie', type: 'select', options: [['', '-- Choisir --'], ...TOOL_CATEGORIES.map(c => [c, c])] },
+          { name: 'quantity', label: 'Quantite', type: 'number', min: 0, default: 1 },
+          { name: 'status',   label: 'Etat',        type: 'select', options: Object.entries(TOOL_STATUS).map(([k, v]) => [k, v[0]]) },
+          { name: 'location', label: 'Emplacement', type: 'select', options: Object.entries(TOOL_LOCATIONS) },
+          { name: 'project_id', label: 'Chantier (si sur chantier)', type: 'select', span: 2, options: projectOptions('-- Aucun --') },
+          { name: 'notes', label: 'Notes', type: 'textarea', span: 2, rows: 2, placeholder: 'Numero de serie, panne, pret...' },
+        ],
+        onSubmit: p => {
+          if (p.location !== 'chantier') p.project_id = null;
+          return saveRow('tools', p, row);
+        },
+        onDelete: row && (() => deleteRow('tools', row, row.name)),
+      });
+    },
+  },
+
+  // ---------------- MATERIEL ----------------
+  materials: {
+    key: 'materials', table: 'materials', newLabel: 'Ajouter du materiel',
+    empty: 'Aucun materiel. Note ici ce qu\'il faut commander pour tes chantiers.',
+    defaultFilters: { q: '', project: '' },
+    filters: [
+      { key: 'q', type: 'search', placeholder: 'Rechercher (designation, fournisseur)...' },
+      { key: 'project', type: 'select', options: () => [['', 'Tous les chantiers'], ['none', 'Stock general'], ...state.projects.map(p => [p.id, p.name])] },
+    ],
+    match: (r, f) => (!f.project || (f.project === 'none' ? !r.project_id : r.project_id === f.project))
+      && textMatch(f.q, [r.name, r.supplier, r.notes]),
+    summary: rows => MAT_FLOW.map(s => chip(MAT_STATUS[s][0], rows.filter(r => r.status === s).length, MAT_STATUS[s][1])).join(''),
+    render(listEl, rows) {
+      const today = todayISO();
+      const board = document.createElement('div');
+      board.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4';
+      MAT_FLOW.forEach((status, i) => {
+        const col = document.createElement('div');
+        col.className = 'glass rounded-2xl p-4 space-y-3';
+        const items = rows.filter(r => r.status === status);
+        col.innerHTML = `<div class="flex items-center justify-between">${badge(MAT_STATUS[status])}<span class="text-xs text-slate-500">${items.length}</span></div>`;
+        if (!items.length) col.insertAdjacentHTML('beforeend', '<p class="text-xs text-slate-600 text-center py-4">Vide</p>');
+        items.forEach(m => {
+          const late = m.needed_by && m.needed_by < today && ['a_commander', 'commande'].includes(m.status);
+          const card = document.createElement('div');
+          card.className = `rounded-xl p-3 bg-ink-900/60 border ${late ? 'border-rose-500/50' : 'border-ink-700/50'} ${canManage() ? 'cursor-pointer hover:border-brand-500/40' : ''}`;
+          card.innerHTML = `
+            <div class="font-medium">${escapeHtml(m.name)}</div>
+            <div class="text-sm text-brand-400">${Number(m.quantity).toLocaleString('fr-FR')} ${escapeHtml(m.unit)}</div>
+            <div class="text-xs text-slate-500 mt-1">${escapeHtml(projectName(m.project_id) || 'Stock general')}${m.supplier ? ' &middot; ' + escapeHtml(m.supplier) : ''}</div>
+            ${m.needed_by ? `<div class="text-xs mt-1 ${late ? 'text-rose-300 font-semibold' : 'text-slate-400'}">Pour le ${fmtDate(m.needed_by)}${late ? ' (en retard)' : ''}</div>` : ''}
+            ${canManage() && i < MAT_FLOW.length - 1 ? `<button type="button" class="advance mt-2 w-full text-xs bg-ink-700 hover:bg-ink-600 text-slate-200 px-2 py-1.5 rounded-lg">Passer a &laquo; ${escapeHtml(MAT_STATUS[MAT_FLOW[i + 1]][0])} &raquo;</button>` : ''}
+          `;
+          card.querySelector('.advance')?.addEventListener('click', async e => {
+            e.stopPropagation();
+            const { error } = await supa.from('materials').update({ status: MAT_FLOW[i + 1] }).eq('id', m.id);
+            if (error) { notify(error.message, 'error'); return; }
+            cache.materials = null;
+            renderPage();
+          });
+          if (canManage()) card.addEventListener('click', () => MODULES.materials.edit(m));
+          col.appendChild(card);
+        });
+        board.appendChild(col);
+      });
+      listEl.appendChild(board);
+    },
+    edit(row) {
+      openFormModal({
+        title: row ? 'Modifier le materiel' : 'Ajouter du materiel',
+        values: row || {},
+        fields: [
+          { name: 'name', label: 'Designation', required: true, span: 2, mic: true, placeholder: 'Ex : Plaques BA13' },
+          { name: 'quantity', label: 'Quantite', type: 'number', step: '0.01', min: 0, default: 0 },
+          { name: 'unit',     label: 'Unite',    type: 'select', options: MAT_UNITS.map(u => [u, u]) },
+          { name: 'status',   label: 'Statut',   type: 'select', options: MAT_FLOW.map(s => [s, MAT_STATUS[s][0]]) },
+          { name: 'supplier', label: 'Fournisseur', placeholder: 'Ex : Point P' },
+          { name: 'project_id', label: 'Chantier', type: 'select', options: projectOptions('Stock general') },
+          { name: 'needed_by',  label: 'A avoir pour le', type: 'date' },
+          { name: 'notes', label: 'Notes', type: 'textarea', span: 2, rows: 2 },
+        ],
+        onSubmit: p => saveRow('materials', p, row),
+        onDelete: row && (() => deleteRow('materials', row, row.name)),
+      });
+    },
+  },
+
+  // ---------------- A PREVOIR ----------------
+  todos: {
+    key: 'todos', table: 'todos', newLabel: 'Nouvelle tache',
+    empty: 'Aucune tache. Note ici tout ce qu\'il ne faut pas oublier.',
+    defaultFilters: { view: 'open', who: '', project: '' },
+    filters: [
+      { key: 'view', type: 'select', options: [['open', 'A faire'], ['done', 'Faites'], ['all', 'Toutes']] },
+      { key: 'who',  type: 'select', options: [['', 'Tout le monde'], ['me', 'Mes taches']] },
+      { key: 'project', type: 'select', options: () => [['', 'Tous les chantiers'], ['none', 'Taches generales'], ...state.projects.map(p => [p.id, p.name])] },
+    ],
+    match: (r, f) => (f.view === 'all' || (f.view === 'done' ? r.done : !r.done))
+      && (!f.who || r.assigned_to === state.user.id)
+      && (!f.project || (f.project === 'none' ? !r.project_id : r.project_id === f.project)),
+    summary: rows => {
+      const open = rows.filter(r => !r.done);
+      const today = todayISO();
+      return chip('A faire', open.length)
+        + chip('En retard', open.filter(r => r.due_date && r.due_date < today).length, 'bg-rose-900/60 text-rose-300')
+        + chip('Urgentes', open.filter(r => r.priority === 'urgente').length, TODO_PRIO.urgente[1])
+        + chip('Faites', rows.length - open.length, 'bg-emerald-900/60 text-emerald-300');
+    },
+    render(listEl, rows, redraw) {
+      const box = document.createElement('div');
+      box.className = 'glass rounded-2xl p-2 md:p-3 space-y-1';
+      sortTodos(rows).forEach(t => {
+        const row = document.createElement('div');
+        row.className = `flex items-start gap-3 p-3 rounded-lg hover:bg-ink-800/50 transition ${canManage() ? 'cursor-pointer' : ''}`;
+        row.innerHTML = `
+          <button type="button" class="check mt-0.5 w-6 h-6 shrink-0 rounded-full border-2 flex items-center justify-center transition ${t.done ? 'bg-emerald-500 border-emerald-500 text-ink-950' : 'border-slate-500 hover:border-brand-400'}" title="${t.done ? 'Marquer a faire' : 'Marquer comme fait'}">
+            ${t.done ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>' : ''}
+          </button>
+          <div class="flex-1 min-w-0">
+            <div class="font-medium ${t.done ? 'line-through text-slate-500' : ''}">${escapeHtml(t.title)}</div>
+            ${t.details ? `<div class="text-xs text-slate-400 mt-0.5">${escapeHtml(t.details)}</div>` : ''}
+            <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+              ${badge(TODO_PRIO[t.priority])}
+              ${dueBadge(t)}
+              ${t.category ? `<span class="badge bg-ink-700 text-slate-400">${escapeHtml(t.category)}</span>` : ''}
+              ${t.project_id ? `<span class="badge bg-ink-700 text-slate-300">&#127959; ${escapeHtml(projectName(t.project_id))}</span>` : ''}
+              ${t.assigned_to ? `<span class="badge bg-ink-700 text-slate-300">&#128100; ${escapeHtml(memberName(t.assigned_to))}</span>` : ''}
+              ${t.done && t.done_by ? `<span class="text-[11px] text-slate-500">fait par ${escapeHtml(memberName(t.done_by) || '?')} le ${fmtDate(t.done_at)}</span>` : ''}
+            </div>
+          </div>
+        `;
+        row.querySelector('.check').addEventListener('click', async e => {
+          e.stopPropagation();
+          const { error } = await supa.rpc('set_todo_done', { p_todo_id: t.id, p_done: !t.done });
+          if (error) { notify(error.message, 'error'); return; }
+          // Mise a jour locale, sans recharger toute la liste
+          t.done = !t.done;
+          t.done_at = t.done ? new Date().toISOString() : null;
+          t.done_by = t.done ? state.user.id : null;
+          if (t.done) notify('Tache terminee', 'success');
+          redraw();
+        });
+        if (canManage()) row.addEventListener('click', () => MODULES.todos.edit(t));
+        box.appendChild(row);
+      });
+      listEl.appendChild(box);
+    },
+    edit(row) {
+      openFormModal({
+        title: row ? 'Modifier la tache' : 'Nouvelle tache',
+        values: row || {},
+        fields: [
+          { name: 'title', label: 'Titre', required: true, span: 2, mic: true, placeholder: 'Ex : Commander les rails R48' },
+          { name: 'details', label: 'Details', type: 'textarea', span: 2, rows: 2 },
+          { name: 'priority', label: 'Priorite', type: 'select', default: 'normale', options: [['normale', 'Normal'], ['urgente', 'Urgent'], ['basse', 'Faible']] },
+          { name: 'due_date', label: 'Echeance', type: 'date' },
+          { name: 'category', label: 'Categorie', type: 'select', options: [['', '-- Aucune --'], ...TODO_CATEGORIES.map(c => [c, c])] },
+          { name: 'project_id', label: 'Chantier', type: 'select', options: projectOptions('Tache generale') },
+          { name: 'assigned_to', label: 'Confiee a', type: 'select', span: 2, options: memberOptions },
+        ],
+        onSubmit: p => saveRow('todos', p, row),
+        onDelete: row && (() => deleteRow('todos', row, row.title)),
+      });
+    },
+  },
+
+  // ---------------- MESSAGES ----------------
+  messages: {
+    key: 'messages', table: 'announcements', newLabel: 'Nouveau message',
+    empty: "Aucun message. Le patron et les chefs peuvent publier des annonces visibles par toute l'equipe.",
+    defaultFilters: { priority: '' },
+    filters: [
+      { key: 'priority', type: 'select', options: [['', 'Tous les messages'], ...Object.entries(MSG_PRIO).map(([k, v]) => [k, v[0]])] },
+    ],
+    match: (r, f) => !f.priority || r.priority === f.priority,
+    render(listEl, rows) {
+      const box = document.createElement('div');
+      box.className = 'space-y-4 max-w-3xl';
+      sortMessages(rows).forEach(m => {
+        const card = document.createElement('div');
+        card.className = `glass rounded-2xl p-5 border-l-4 ${MSG_PRIO[m.priority][2]}`;
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-3">
+            <div class="min-w-0">
+              <div class="font-bold text-lg">${m.pinned ? '<span title="Epingle">&#128204;</span> ' : ''}${escapeHtml(m.title)}</div>
+              <div class="text-xs text-slate-500 mt-0.5">${escapeHtml(memberName(m.author_id) || 'Equipe')} &middot; ${fmtDateTime(m.created_at)}</div>
+            </div>
+            ${badge(MSG_PRIO[m.priority])}
+          </div>
+          <div class="text-sm text-slate-200 mt-3 whitespace-pre-line">${escapeHtml(m.content)}</div>
+          ${canManage() ? `
+            <div class="flex gap-2 justify-end mt-4 pt-3 border-t border-ink-700/50">
+              <button type="button" class="pin text-xs bg-ink-700 hover:bg-ink-600 text-slate-200 px-3 py-1.5 rounded-lg">${m.pinned ? 'Desepingler' : 'Epingler'}</button>
+              <button type="button" class="edit text-xs bg-ink-700 hover:bg-ink-600 text-slate-200 px-3 py-1.5 rounded-lg">Modifier</button>
+            </div>` : ''}
+        `;
+        card.querySelector('.pin')?.addEventListener('click', async () => {
+          const { error } = await supa.from('announcements').update({ pinned: !m.pinned }).eq('id', m.id);
+          if (error) { notify(error.message, 'error'); return; }
+          cache.announcements = null;
+          renderPage();
+        });
+        card.querySelector('.edit')?.addEventListener('click', () => MODULES.messages.edit(m));
+        box.appendChild(card);
+      });
+      listEl.appendChild(box);
+    },
+    edit(row) {
+      openFormModal({
+        title: row ? 'Modifier le message' : 'Nouveau message',
+        values: row || {},
+        fields: [
+          { name: 'title', label: 'Titre', required: true, span: 2, mic: true, placeholder: "Ex : Reunion d'equipe lundi 7h30" },
+          { name: 'content', label: 'Message', type: 'textarea', required: true, span: 2, rows: 5 },
+          { name: 'priority', label: 'Importance', type: 'select', options: Object.entries(MSG_PRIO).map(([k, v]) => [k, v[0]]) },
+          { name: 'pinned', label: 'Epingle', type: 'checkbox', checkLabel: 'Garder en haut de la liste' },
+        ],
+        onSubmit: p => saveRow('announcements', p, row),
+        onDelete: row && (() => deleteRow('announcements', row, row.title)),
+      });
+    },
+  },
+};
+
+// ============================================================
+// JOURNAL DE CHANTIER (notes datees, ouvert a toute l'equipe)
+// ============================================================
+async function openNotesModal(project) {
+  const node = tpl('tpl-modal-notes');
+  bind(node, 'title', project.name);
+  const form   = $('form[data-form="note"]', node);
+  const listEl = $('[data-bind="list"]', node);
+  const mic = micButton(form.elements.content);
+  if (mic) $('[data-bind="mic"]', node).appendChild(mic);
+
+  document.body.appendChild(node);
+  const modalEl = document.body.lastElementChild;
+  $$('[data-action="close"]', modalEl).forEach(b => b.addEventListener('click', () => modalEl.remove()));
+
+  async function load() {
+    listEl.innerHTML = '<div class="spinner mx-auto my-6"></div>';
+    await loadMembers();
+    const { data, error } = await supa.from('project_notes').select('*')
+      .eq('project_id', project.id).order('created_at', { ascending: false });
+    if (error) { listEl.innerHTML = `<p class="text-sm text-rose-300">${escapeHtml(error.message)}</p>`; return; }
+    if (!data.length) { listEl.innerHTML = '<p class="text-sm text-slate-500 text-center py-6">Aucune note pour ce chantier.</p>'; return; }
+    listEl.innerHTML = '';
+    data.forEach(n => {
+      const row = document.createElement('div');
+      row.className = 'p-3 rounded-lg bg-ink-900/50';
+      const canDelete = canManage() || n.author_id === state.user.id;
+      row.innerHTML = `
+        <div class="flex items-center justify-between gap-2 mb-1">
+          <div class="text-xs text-slate-500"><b class="text-slate-300">${escapeHtml(memberName(n.author_id) || 'Membre')}</b> &middot; ${fmtDateTime(n.created_at)}</div>
+          ${canDelete ? '<button type="button" class="del text-[11px] text-rose-400 hover:text-rose-300">Supprimer</button>' : ''}
+        </div>
+        <div class="text-sm whitespace-pre-line">${escapeHtml(n.content)}</div>
+      `;
+      row.querySelector('.del')?.addEventListener('click', async () => {
+        if (!confirm('Supprimer cette note ?')) return;
+        const { error } = await supa.from('project_notes').delete().eq('id', n.id);
+        if (error) { notify(error.message, 'error'); return; }
+        load();
+      });
+      listEl.appendChild(row);
+    });
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const content = form.elements.content.value.trim();
+    if (!content) return;
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true;
+    const { error } = await supa.from('project_notes').insert({
+      company_id: project.company_id, project_id: project.id, content,
+    });
+    btn.disabled = false;
+    if (error) { notify(error.message, 'error'); return; }
+    form.reset();
+    load();
+  });
+
+  load();
 }
 
 // ============================================================
@@ -1178,6 +1932,7 @@ async function logout() {
   await supa.auth.signOut();
   state.user = state.profile = state.company = null;
   state.projects = [];
+  Object.keys(cache).forEach(k => cache[k] = null);
   showAuth();
 }
 
